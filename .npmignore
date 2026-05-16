@@ -1,0 +1,8 @@
+tests/
+.editorconfig
+.github/
+node_modules/
+.DS_Store
+*.log
+.vscode/
+.idea/

@@ -1,0 +1,55 @@
+{
+  "name": "total-agent-memory",
+  "version": "0.1.0",
+  "description": "Persistent memory for Claude Code, Codex CLI, Cursor and any MCP client. Local-first, hits #5 on LoCoMo. One command to install.",
+  "keywords": [
+    "mcp",
+    "memory",
+    "claude",
+    "claude-code",
+    "codex",
+    "cursor",
+    "cline",
+    "agent",
+    "ai",
+    "llm",
+    "knowledge-graph",
+    "rag",
+    "persistent-memory",
+    "local-first"
+  ],
+  "homepage": "https://totalmemory.dev",
+  "bugs": {
+    "url": "https://git.infra.vbcherepanov.com/vbcherepanov/total-memory-npm/issues"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://git.infra.vbcherepanov.com/vbcherepanov/total-memory-npm.git"
+  },
+  "license": "MIT",
+  "author": "Vitalii Cherepanov <vbcherepanov@gmail.com> (https://vbcherepanov.com)",
+  "type": "commonjs",
+  "bin": {
+    "total-agent-memory": "bin/cli.js",
+    "tam": "bin/cli.js"
+  },
+  "main": "lib/index.js",
+  "files": [
+    "bin/",
+    "lib/",
+    "README.md",
+    "LICENSE"
+  ],
+  "engines": {
+    "node": ">=18"
+  },
+  "scripts": {
+    "test": "node tests/smoke.test.js",
+    "lint": "node --check bin/cli.js && node --check lib/*.js"
+  },
+  "dependencies": {},
+  "devDependencies": {},
+  "publishConfig": {
+    "access": "public"
+  }
+}
