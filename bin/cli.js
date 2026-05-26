@@ -16,16 +16,19 @@ ${bold('Usage:')}  total-agent-memory <command> [options]
         ${dim('alias:')} tam <command> [options]
 
 ${bold('Commands:')}
-  install            Install Python server into ~/.claude-memory (idempotent)
+  install            Install Python server + autostart dashboard/reflection
   start              Start the MCP server (default if no command)
   connect <ide>      Wire memory into an IDE config
                      ${dim('claude-code | codex | cursor | cline | continue')}
                      ${dim('aider | windsurf | gemini-cli | opencode')}
+  dashboard <sub>    Manage background services
+                     ${dim('install | uninstall | start | stop | restart')}
+                     ${dim('status  | logs       | open')}
   demo               Seed demo session + run a recall to prove it works
-  status             Health check + tool count + DB stats
+  status             Health check + tool count + DB stats + service status
   doctor             Diagnose environment (python, uv, ports, configs)
   upgrade            Upgrade to the latest server version
-  uninstall          Remove ~/.claude-memory and IDE wirings
+  uninstall          Remove ~/.tam, services, and IDE wirings
   version            Print version
   help               Show this message
 
@@ -33,21 +36,26 @@ ${bold('Options:')}
   --version, -v         Print npm wrapper version
   --server-version <v>  Pin server version (default: latest)
   --source <pypi|git>   Where to install from (default: auto)
-  --memory-dir <path>   Override install dir (default: ~/.claude-memory)
+  --memory-dir <path>   Override install dir (default: ~/.tam)
+  --no-services         Skip dashboard/reflection autostart during install
   --yes, -y             Skip prompts
   --no-color            Disable ANSI colors
   --verbose             Print every shell command
 
 ${bold('Examples:')}
-  ${c.dim('# Install and start, then wire Claude Code:')}
-  npx -y total-agent-memory install
+  ${c.dim('# One-shot: install everything (server + dashboard + reflection)')}
+  ${c.dim('# and wire Claude Code:')}
   npx -y total-agent-memory connect claude-code
+  ${c.dim('# → open http://127.0.0.1:37737 for the dashboard')}
 
-  ${c.dim('# All-in-one onboarding:')}
-  npx -y total-agent-memory
+  ${c.dim('# Check that all services are running:')}
+  npx total-agent-memory dashboard status
+
+  ${c.dim('# Install server only, skip auto-services:')}
+  npx -y total-agent-memory install --no-services
 
   ${c.dim('# Pin a specific server version:')}
-  npx -y total-agent-memory install --server-version 11.2.2
+  npx -y total-agent-memory install --server-version 12.3.0
 
 ${bold('Docs:')}  https://totalmemory.dev
 ${bold('Repo:')}  https://github.com/vbcherepanov/total-agent-memory

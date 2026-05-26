@@ -4,11 +4,20 @@
 > Local-first. Hits **#5 on LoCoMo** and **96.2% R@5 on LongMemEval**.
 
 ```bash
-npx -y total-agent-memory
+npx -y total-agent-memory connect claude-code
+# → server installed in ~/.tam, IDE wired, dashboard live at
+#   http://127.0.0.1:37737
 ```
 
-That's it. One command bootstraps a Python virtual env in `~/.claude-memory/`,
-installs the MCP server, and prints next-step instructions for wiring your IDE.
+One command bootstraps a Python virtual env in `~/.tam/`, installs the
+MCP server **and** registers two background services with your OS:
+
+- **Dashboard** — web UI on `http://127.0.0.1:37737` (LaunchAgent on macOS,
+  systemd-user unit on Linux, Scheduled Task on Windows). Survives reboot.
+- **Reflection** — file-watch drain of the reflection queues. Fires
+  whenever the server touches `~/.tam/.reflect-pending` (debounce 10s).
+
+Pass `--no-services` to skip the auto-service install.
 
 ## Quick start
 
@@ -30,22 +39,24 @@ Alias: `tam` (same binary).
 
 | Command | What it does |
 |---|---|
-| `install`         | Create venv, install Python server. Idempotent. |
+| `install`         | Create venv, install Python server, register dashboard + reflection services. Idempotent. |
 | `start`           | Run the MCP server (stdin/stdout). |
 | `connect <ide>`   | Wire an IDE config. `claude-code` `codex` `cursor` `cline` `continue` `windsurf` `gemini-cli` `opencode` `aider` |
+| `dashboard <sub>` | Manage background services: `install`, `uninstall`, `start`, `stop`, `restart`, `status`, `logs`, `open`. |
 | `demo`            | Health-check end-to-end. |
-| `status`          | Print install paths, DB size. |
+| `status`          | Print install paths, DB size, **service status, dashboard HTTP probe**. |
 | `doctor`          | Diagnose Python/uv/git on PATH. |
 | `upgrade`         | Pull the latest server version. |
-| `uninstall`       | Remove `~/.claude-memory` (needs `--yes`). |
+| `uninstall`       | Remove `~/.tam` and unregister all services (needs `--yes`). |
 
 ## Options
 
 | Flag | Meaning |
 |---|---|
-| `--server-version 11.2.2` | Pin a specific server release. |
+| `--server-version 12.3.0` | Pin a specific server release. |
 | `--source pypi\|git`       | Force install source. Default: PyPI with GitHub fallback. |
-| `--memory-dir /path`      | Override install dir (default `~/.claude-memory`). |
+| `--memory-dir /path`      | Override install dir (default `~/.tam`). |
+| `--no-services`           | Skip dashboard / reflection auto-install. |
 | `--yes`                   | Skip prompts (needed for `uninstall`). |
 | `--no-color`              | Disable ANSI. |
 | `--verbose`               | Print every shell command. |
@@ -59,19 +70,40 @@ Alias: `tam` (same binary).
 ## What gets installed
 
 ```
-~/.claude-memory/
+~/.tam/
 ├── .venv/                   # isolated Python env
-│   └── bin/claude-total-memory   # MCP server entry-point
-└── memory.db                # SQLite — your memory lives here
+│   └── bin/total-agent-memory   # MCP server entry-point
+├── logs/
+│   ├── dashboard.log
+│   └── reflection.log
+├── memory.db                # SQLite — your memory lives here
+└── .reflect-pending         # touched on every save → triggers reflection
 ```
 
-Nothing global is touched. Uninstall with `tam uninstall --yes`.
+Background services registered with your OS:
+
+| OS      | Location                                                                 |
+|---------|--------------------------------------------------------------------------|
+| macOS   | `~/Library/LaunchAgents/com.total-agent-memory.{dashboard,reflection}.plist` |
+| Linux   | `~/.config/systemd/user/tam-{dashboard,reflection}.{service,path}`       |
+| Windows | Task Scheduler — `TotalAgentMemory-dashboard` (reflection: manual)       |
+
+Nothing system-wide. Uninstall with `tam uninstall --yes` (removes services first).
+
+### Verify
+
+```bash
+tam dashboard status
+# ● dashboard    running
+# ◉ reflection   watching
+# ✓ HTTP http://127.0.0.1:37737 → 200
+```
 
 ## Links
 
 - Site: <https://totalmemory.dev>
 - Server source: <https://github.com/vbcherepanov/total-agent-memory>
-- PyPI package: `claude-total-memory`
+- PyPI package: `total-agent-memory` (legacy `claude-total-memory` is now a deprecation shim)
 
 ## License
 
