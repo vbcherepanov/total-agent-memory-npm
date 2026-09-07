@@ -1,6 +1,6 @@
 {
   "name": "total-agent-memory",
-  "version": "1.4.3",
+  "version": "1.4.4",
   "description": "Persistent memory for Claude Code, Codex CLI, Cursor and any MCP client. Local-first, MCP 2026-07-28, zero LLM calls in the hot path. One command to install.",
   "keywords": [
     "mcp",
