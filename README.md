@@ -64,7 +64,7 @@ Alias: `tam` (same binary).
 ## Requirements
 
 - **Node ≥ 18** (you already have it if you're reading this).
-- **Python ≥ 3.10** on PATH. The wrapper will tell you how to install it if missing.
+- **Python ≥ 3.11** on PATH. The wrapper will tell you how to install it if missing.
 - Optional: **[uv](https://docs.astral.sh/uv/)** — 10× faster installs, auto-detected.
 
 ## What gets installed
