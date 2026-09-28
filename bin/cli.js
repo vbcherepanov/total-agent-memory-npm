@@ -38,6 +38,7 @@ ${bold('Options:')}
   --source <pypi|git>   Where to install from (default: auto)
   --memory-dir <path>   Override install dir (default: ~/.tam)
   --no-services         Skip dashboard/reflection autostart during install
+  --allow-temp-services Allow services for a --memory-dir under the system temp dir
   --yes, -y             Skip prompts
   --no-color            Disable ANSI colors
   --verbose             Print every shell command

@@ -2,6 +2,29 @@
 
 All notable changes to the `total-agent-memory` npm wrapper.
 
+## [1.9.0] — 2026-09-28
+
+Targets server v14.6.0. `connect` needs server 14.6.0 or later.
+
+### Changed
+- `connect <ide>` registers the client through the server's own
+  `tam setup register` (the code `install.sh`, `install.ps1` and the setup
+  wizard use), so each client gets the config file it actually reads.
+  Against an older server it stops with "the installed server is too old
+  to register clients".
+- `claude-desktop` is a supported IDE.
+- `DEFAULT_SERVER_VERSION` bumped to `14.6.0`.
+
+### Fixed
+- Cline and OpenCode were written to `~/.cline/mcp.json` and
+  `~/.config/opencode/config.json`, files those clients do not read.
+- `connect` rejects an unknown IDE before installing anything.
+- Background services are machine-wide, so installing or removing them
+  (`install`, `uninstall`, `dashboard install|uninstall`) is refused for a
+  `--memory-dir` under the system temp dir unless `--allow-temp-services`
+  is passed. `uninstall` reports a service it could not remove instead of
+  ignoring the error.
+
 ## [1.3.0] — 2026-05-26
 
 Targets server v12.4.0. After `npx total-agent-memory connect <ide>` the

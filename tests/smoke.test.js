@@ -8,6 +8,18 @@ const { spawnSync } = require('child_process');
 const path = require('path');
 const assert = require('assert');
 
+const fs = require('fs');
+const os = require('os');
+
+// Every test, and everything it spawns, runs against a throwaway HOME so the
+// wrapper can never touch the real ~/Library/LaunchAgents, ~/.tam or IDE configs.
+const TEST_HOME = fs.mkdtempSync(path.join(os.tmpdir(), 'tam-npm-smoke-home-'));
+process.env.HOME = TEST_HOME;
+process.env.USERPROFILE = TEST_HOME;
+process.env.XDG_CONFIG_HOME = path.join(TEST_HOME, '.config');
+process.env.TAM_MEMORY_DIR = path.join(TEST_HOME, '.tam');
+delete process.env.CLAUDE_MEMORY_DIR;
+
 const cli = path.join(__dirname, '..', 'bin', 'cli.js');
 const node = process.execPath;
 let failed = 0;
@@ -214,6 +226,78 @@ t('dashboard status runs (probes localhost — no server required)', () => {
   assert.match(r.stdout, /dashboard/);
   assert.match(r.stdout, /reflection/);
 });
+
+function fakeInstall(probeExit) {
+  const fs = require('fs');
+  const os = require('os');
+  const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'tam-connect-'));
+  const bin = path.join(dir, '.venv', 'bin');
+  fs.mkdirSync(bin, { recursive: true });
+  const log = path.join(dir, 'tam-args.json');
+  const script = (body) => `#!/usr/bin/env node\n${body}\n`;
+  fs.writeFileSync(path.join(bin, 'total-agent-memory'), script('process.exit(0);'), { mode: 0o755 });
+  fs.writeFileSync(path.join(bin, 'python'), script(`process.exit(${probeExit});`), { mode: 0o755 });
+  fs.writeFileSync(path.join(bin, 'tam'), script(
+    `require('fs').writeFileSync(${JSON.stringify(log)}, JSON.stringify(process.argv.slice(2)));` +
+    "process.stdout.write('  OK: MCP memory registered\\n');"), { mode: 0o755 });
+  return { dir, log };
+}
+
+if (process.platform !== 'win32') {
+  t('connect delegates registration to `tam setup register`', () => {
+    const { dir, log } = fakeInstall(0);
+    const r = exec(['connect', 'cline', '--memory-dir', dir]);
+    assert.strictEqual(r.status, 0, `exit ${r.status}: ${r.stderr}`);
+    const args = JSON.parse(require('fs').readFileSync(log, 'utf8'));
+    assert.deepStrictEqual(args.slice(0, 6), ['setup', 'register', '--client', 'cline', '--memory-dir', dir]);
+    assert.ok(args.includes('--command') && args.includes('MEMORY_MODE=fast'));
+    assert.match(r.stdout, /MCP memory registered/);
+  });
+
+  t('connect refuses a server that predates `tam setup register`', () => {
+    const { dir, log } = fakeInstall(3);
+    const r = exec(['connect', 'cursor', '--memory-dir', dir]);
+    assert.strictEqual(r.status, 2);
+    assert.match(r.stderr, /too old to register clients/);
+    assert.ok(!require('fs').existsSync(log));
+  });
+}
+
+t('connect rejects an unknown IDE', () => {
+  const dir = path.join(require('os').tmpdir(), `tam-connect-unknown-${process.pid}`);
+  const r = exec(['connect', 'emacs', '--memory-dir', dir]);
+  assert.strictEqual(r.status, 2);
+  assert.match(r.stderr, /unsupported IDE: emacs/);
+  assert.ok(!require('fs').existsSync(dir), 'must not start an install');
+});
+
+t('harness runs every test with a temporary HOME', () => {
+  assert.strictEqual(os.homedir(), TEST_HOME);
+  const r = exec(['doctor']);
+  assert.ok(!r.stdout.includes(require('os').userInfo().homedir + path.sep + '.tam'), 'doctor must not see the real ~/.tam');
+});
+
+t('services refuse a memory dir under the system temp dir', () => {
+  const { assertServicesAllowed, underTempDir } = require('../lib/services');
+  const dir = path.join(os.tmpdir(), `tam-guard-${process.pid}`);
+  assert.ok(underTempDir(dir));
+  assert.throws(() => assertServicesAllowed({ 'memory-dir': dir }), /--allow-temp-services/);
+  assert.doesNotThrow(() => assertServicesAllowed({ 'memory-dir': dir, 'allow-temp-services': true }));
+  assert.ok(!underTempDir(path.join(require('os').userInfo().homedir, '.tam')));
+});
+
+t('dashboard install/uninstall refuse a temp memory dir before doing anything', () => {
+  const dir = path.join(os.tmpdir(), `tam-guard-cli-${process.pid}`);
+  for (const sub of ['install', 'uninstall']) {
+    const r = exec(['dashboard', sub, '--memory-dir', dir]);
+    assert.strictEqual(r.status, 2, `${sub}: exit ${r.status}`);
+    assert.match(r.stderr, /refusing to change background services/);
+  }
+  assert.ok(!fs.existsSync(dir), 'must not start an install');
+  assert.ok(!fs.existsSync(path.join(TEST_HOME, 'Library', 'LaunchAgents')));
+});
+
+process.on('exit', () => fs.rmSync(TEST_HOME, { recursive: true, force: true }));
 
 if (failed === 0) {
   process.stdout.write('\n\x1b[32mall smoke tests passed\x1b[0m\n');
