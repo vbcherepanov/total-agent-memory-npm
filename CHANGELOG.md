@@ -2,6 +2,13 @@
 
 All notable changes to the `total-agent-memory` npm wrapper.
 
+## [1.9.1] — 2026-09-30
+
+Targets server v14.7.0.
+
+### Changed
+- `DEFAULT_SERVER_VERSION` bumped to `14.7.0`.
+
 ## [1.9.0] — 2026-09-28
 
 Targets server v14.6.0. `connect` needs server 14.6.0 or later.
