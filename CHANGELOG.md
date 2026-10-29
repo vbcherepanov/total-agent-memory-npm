@@ -2,6 +2,13 @@
 
 All notable changes to the `total-agent-memory` npm wrapper.
 
+## [1.9.4] — 2026-10-26
+
+Targets server v14.10.0.
+
+### Changed
+- `DEFAULT_SERVER_VERSION` bumped to `14.10.0`.
+
 ## [1.9.3] — 2026-10-14
 
 Targets server v14.9.0.
