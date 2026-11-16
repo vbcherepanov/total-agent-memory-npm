@@ -2,6 +2,13 @@
 
 All notable changes to the `total-agent-memory` npm wrapper.
 
+## [1.10.0] — 2026-11-16
+
+Targets server v15.0.0. Upgrading the server runs schema migrations on its first start: back up the database first (see the server's `docs/UPGRADE_15.md`).
+
+### Changed
+- `DEFAULT_SERVER_VERSION` bumped to `15.0.0`.
+
 ## [1.9.4] — 2026-10-26
 
 Targets server v14.10.0.
