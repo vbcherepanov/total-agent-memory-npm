@@ -2,6 +2,13 @@
 
 All notable changes to the `total-agent-memory` npm wrapper.
 
+## [1.10.1] — 2026-11-16
+
+Targets server v15.0.0.
+
+### Changed
+- Repository and issue links point to GitHub (`vbcherepanov/total-agent-memory-npm`); the previous host is gone.
+
 ## [1.10.0] — 2026-11-16
 
 Targets server v15.0.0. Upgrading the server runs schema migrations on its first start: back up the database first (see the server's `docs/UPGRADE_15.md`).

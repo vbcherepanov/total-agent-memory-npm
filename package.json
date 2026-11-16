@@ -1,6 +1,6 @@
 {
   "name": "total-agent-memory",
-  "version": "1.10.0",
+  "version": "1.10.1",
   "description": "Persistent memory for Claude Code, Codex CLI, Cursor and any MCP client. Local-first, MCP 2026-07-28, zero LLM calls in the hot path. One command to install.",
   "keywords": [
     "mcp",
@@ -20,11 +20,11 @@
   ],
   "homepage": "https://totalmemory.dev",
   "bugs": {
-    "url": "https://git.infra.vbcherepanov.com/vbcherepanov/total-memory-npm/issues"
+    "url": "https://github.com/vbcherepanov/total-agent-memory-npm/issues"
   },
   "repository": {
     "type": "git",
-    "url": "git+https://git.infra.vbcherepanov.com/vbcherepanov/total-memory-npm.git"
+    "url": "git+https://github.com/vbcherepanov/total-agent-memory-npm.git"
   },
   "license": "MIT",
   "author": "Vitalii Cherepanov <vbcherepanov@gmail.com> (https://vbcherepanov.com)",
